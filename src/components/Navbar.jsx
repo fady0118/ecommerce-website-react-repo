@@ -16,7 +16,7 @@ function Navbar() {
           </Link>
         </div>
         <div className="navbar-auth">
-          <div className="navbar-auth-links" to={"/auth"}>
+          <div className="navbar-auth-links">
             <Link className="btn btn-secondary" to="/auth">
               Login
             </Link>
