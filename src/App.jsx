@@ -10,9 +10,9 @@ function App() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={Home} />
-        <Route path="/auth" element={Auth} />
-        <Route path="/checkout" element={Checkout} />
+        <Route path="/" element={<Home/>} />
+        <Route path="/auth" element={<Auth/>} />
+        <Route path="/checkout" element={<Checkout/>} />
       </Routes>
       <footer>footer</footer>
     </>
