@@ -1,18 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-function AuthPage() {
-  const [mode, setMode] = useState("signup");
-  const [error, setError] = useState(null);
-  const { signUp, login, logout, user } = useContext(AuthContext);
-  const navigate = useNavigate();
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, []);
+function AuthPage() {
+  const {authMode} = useParams()
+  const [mode, setMode] = useState(authMode);
+  const [error, setError] = useState(null);
+  const { signUp, login, logout, user } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(()=>{
+    setMode(authMode)
+  },[authMode])
 
   const {
     register,
@@ -27,7 +28,11 @@ function AuthPage() {
     } else {
       result = login(data.email, data.password);
     }
-    result.success ? navigate("/") : setError(result.error);
+    if (result.success) {
+      navigate("/");
+    } else {
+      setError(result.error);
+    }
   }
 
   return (
