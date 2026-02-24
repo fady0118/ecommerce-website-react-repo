@@ -20,12 +20,12 @@ function Navbar() {
         </div>
         {user?.email ? (
           <div className="navbar-auth">
-            <div className="navbar-auth-links">
+            <p className="navbar-auth-links">
               <p>Hello, {user?.email}</p>
               <button className="btn btn-secondary" onClick={logout}>
                 Logout
               </button>
-            </div>
+            </p>
           </div>
         ) : (
           <div className="navbar-auth">

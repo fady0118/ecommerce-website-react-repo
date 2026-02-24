@@ -10,10 +10,8 @@ export default function CartProvider({ children }) {
 
   // update cart from localStorage
   function updateCartItemsState() {
-    console.log("updating cart items...");
     // if there's no user logged in
     if (!user) {
-      console.log("no user found, returning");
       // clear cartState
       setCartItems([]);
       return;
@@ -21,10 +19,8 @@ export default function CartProvider({ children }) {
     // check localStorage get userList update the cartItems State with the list
     // get the cartItems from the localStorage
     const savedCartList = JSON.parse(localStorage.getItem("cartItems") || "[]"); // [{userEmail:[{id:2, quantity:4},{...}] }]
-    console.log({ savedCartList });
     // check if savedCartList includes the user's list
     const currentUserCartItems = savedCartList.find((currentList) => Object.keys(currentList)[0] === user.email) || { [user.email]: [] };
-    console.log({ currentUserCartItems });
     setCartItems(currentUserCartItems);
   }
 
@@ -62,7 +58,6 @@ export default function CartProvider({ children }) {
 
   // function for checkout item controls (+,-)
   function updateQuantity(productId, type) {
-    console.log(`updating ${productId}-(${type})...`);
     // user check
     if (!user?.email) {
       alert("user must be logged in");
@@ -72,12 +67,12 @@ export default function CartProvider({ children }) {
     // boundary condition (0,20)
     // if quantity is 20 you can only reduce
     // if quantity is 0 you can only add
-    const itemQuantity = cartItems[user.email].find((item) => item.id === productId).quantity;
+    const currentItem = cartItems[user.email]?.find((item) => item.id === productId);
+    if (!currentItem) return;
+    const itemQuantity = currentItem.quantity;
     if (itemQuantity + valueOfType > 20) {
-      console.log("new quantity>20 exceeds boundary");
       return;
     } else if (itemQuantity + valueOfType < 0) {
-      console.log("new quantity<0 exceeds boundary");
       return;
     }
     // update the state
@@ -95,27 +90,26 @@ export default function CartProvider({ children }) {
       alert("user must be logged in");
       return;
     }
-    const updatedCartList = cartItems[user.email].filter(item=>item.id!==productId);
+    const updatedCartList = cartItems[user.email].filter((item) => item.id !== productId);
     const updatedUserCartList = { [user.email]: updatedCartList };
     // update the state
-    setCartItems(updatedCartList);
+    setCartItems(updatedUserCartList);
     // save the updated state to localStorage
     updateLocalStorage(updatedUserCartList);
   }
-  function getCartTotal(){
-    const total = cartItems[user.email]?.reduce((total, item)=>{
+  function getCartTotal() {
+    const total = cartItems[user.email]?.reduce((total, item) => {
       const product = getProductById(item.id);
-      total += product? product.price * item.quantity:0;
-      return total
-    },0)
-    console.log({total})
-    return total
+      total += product ? product.price * item.quantity : 0;
+      return total;
+    }, 0);
+    return total;
   }
-  function clearCart(){
+  function clearCart() {
     // clear cart state
-    setCartItems({[user.email]:[]});
+    setCartItems({ [user.email]: [] });
     // update localStorage
-    updateLocalStorage({[user.email]:[]})
+    updateLocalStorage({ [user.email]: [] });
   }
   function placeOrder() {
     alert("Successful Order!");
