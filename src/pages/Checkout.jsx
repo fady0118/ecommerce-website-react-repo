@@ -39,6 +39,7 @@ function CheckoutPage() {
   // { id, image, name, description, price, quantity }
   const cartItemsDetails = cartItems[user.email]?.map((item) => {
     const itemDetails = getProductById(item.id);
+    if(!itemDetails) return null;
     return { ...itemDetails, quantity: item.quantity };
   });
 

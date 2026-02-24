@@ -90,7 +90,7 @@ export default function CartProvider({ children }) {
       alert("user must be logged in");
       return;
     }
-    const updatedCartList = cartItems[user.email].filter((item) => item.id !== productId);
+    const updatedCartList = (cartItems[user.email]??[]).filter((item) => item.id !== productId);
     const updatedUserCartList = { [user.email]: updatedCartList };
     // update the state
     setCartItems(updatedUserCartList);
