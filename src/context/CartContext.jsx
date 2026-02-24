@@ -44,6 +44,7 @@ export default function CartProvider({ children }) {
     let updatedCartItems;
     if (existing) {
       const currentQuantity = existing.quantity;
+      if(currentQuantity >= 20) return;
       updatedCartItems = currentUserCartItems[user.email].map((item) => (item.id === productId ? { id: productId, quantity: currentQuantity + 1 } : item));
     } else {
       updatedCartItems = currentUserCartItems[user.email] ? [...currentUserCartItems[user.email], { id: productId, quantity: 1 }] : [{ id: productId, quantity: 1 }];
@@ -106,6 +107,7 @@ export default function CartProvider({ children }) {
     return total;
   }
   function clearCart() {
+    if(!user?.email) return;
     // clear cart state
     setCartItems({ [user.email]: [] });
     // update localStorage

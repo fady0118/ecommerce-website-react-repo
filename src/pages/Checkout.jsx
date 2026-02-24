@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import { getProductById, getProducts } from "../data/products";
+import { getProductById } from "../data/products";
 import { useEffect, useState } from "react";
 
 function CheckoutPage() {
@@ -41,7 +41,7 @@ function CheckoutPage() {
     const itemDetails = getProductById(item.id);
     if(!itemDetails) return null;
     return { ...itemDetails, quantity: item.quantity };
-  });
+  }).filter(Boolean); 
 
   return (
     <>

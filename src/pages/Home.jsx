@@ -1,6 +1,5 @@
 import { getProducts } from "../data/products.js";
 import Product from "../components/ProductCard.jsx"
-import { Link } from "react-router-dom";
 
 function HomePage() {
   const products = getProducts();
