@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { getProductById, getProducts } from "../data/products";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function CheckoutPage() {
   const { user } = useAuth();
-  const { cartItems, updateCartItemsState, updateQuantity } = useCart(); // [currentUser:{id:2, quantity:4},{...}] -> { id, image, name, description, price, quantity, total_price }
-
+  const { cartItems, updateCartItemsState, updateQuantity, removeItem, getCartTotal, placeOrder } = useCart(); // [currentUser:{id:2, quantity:4},{...}] -> { id, image, name, description, price, quantity, total_price }
+  const [totalPrice, setTotalPrice] = useState(0);
   if (!user) {
     return (
       <>
@@ -28,13 +28,15 @@ function CheckoutPage() {
   }, [user, cartItems, updateCartItemsState]);
 
   // we need to grab each item details from the data/products.js
-  console.log("checkout page",cartItems)
+   // { id, image, name, description, price, quantity }
   const cartItemsDetails = cartItems[user.email]?.map((item) => {
     const itemDetails = getProductById(item.id);
     return { ...itemDetails, quantity: item.quantity };
-  }); // { id, image, name, description, price, quantity }
-  console.log({ cartItemsDetails });
+  });
 
+  useEffect(()=>{
+    setTotalPrice(getCartTotal());
+  }, [cartItems])
   return (
     <>
       <div className="page">
@@ -43,9 +45,9 @@ function CheckoutPage() {
           <div className="checkout-container">
             <div className="checkout-items">
               <h2 className="checkout-section-items">Order Summary</h2>
-              {cartItemsDetails?.map((item, index) => 
+              {cartItemsDetails?.map((item) => 
                 (
-                  <div className="checkout-item" key={index}>
+                  <div className="checkout-item" key={item.id}>
                     <img className="checkout-item-image" src={item.image} alt={item.name}></img>
                     <div className="checkout-item-details">
                       <h3 className="checkout-item-name">{item.name}</h3>
@@ -60,13 +62,27 @@ function CheckoutPage() {
                       <p className="checkout-item-total">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
+                      <button className="btn btn-secondary btn-small" onClick={()=>removeItem(item.id)}>Remove Item</button>
                     </div>
                   </div>
                 )
               )}
             </div>
             
-            <div></div>
+            <div className="checkout-summary">
+              <h2 className="checkout-section-title">Total</h2>
+              <div className="checkout-total">
+                <p className="checkout-total-label">Subtotal</p>
+                <p className="checkout-total-value">${totalPrice?.toFixed(2)}</p>
+              </div>
+              <div className="checkout-total">
+                <p className="checkout-total-label">Total</p>
+                <p className="checkout-total-value checkout-total-final">${totalPrice?.toFixed(2)}</p>
+              </div>
+              <button className="btn btn-primary btn-large btn-block" onClick={placeOrder}>
+                Place Order
+              </button>
+            </div>
           </div>
         </div>
       </div>

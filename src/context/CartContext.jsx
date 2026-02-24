@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import { getProductById } from "../data/products";
 
 export const CartContext = createContext(null);
 
@@ -68,7 +69,17 @@ export default function CartProvider({ children }) {
       return;
     }
     const valueOfType = type === "plus" ? 1 : -1;
-
+    // boundary condition (0,20)
+    // if quantity is 20 you can only reduce
+    // if quantity is 0 you can only add
+    const itemQuantity = cartItems[user.email].find((item) => item.id === productId).quantity;
+    if (itemQuantity + valueOfType > 20) {
+      console.log("new quantity>20 exceeds boundary");
+      return;
+    } else if (itemQuantity + valueOfType < 0) {
+      console.log("new quantity<0 exceeds boundary");
+      return;
+    }
     // update the state
     const updatedCart = cartItems[user.email].map((item) => (item.id === productId ? { id: item.id, quantity: item.quantity + valueOfType } : item));
     const updatedUserCartList = { [user.email]: updatedCart };
@@ -76,7 +87,41 @@ export default function CartProvider({ children }) {
     // save the updated state to localStorage
     updateLocalStorage(updatedUserCartList);
   }
-  return <CartContext.Provider value={{ cartItems, addToCart, updateCartItemsState, updateQuantity }}>{children}</CartContext.Provider>;
+
+  // remove item from cart
+  function removeItem(productId) {
+    // user check
+    if (!user?.email) {
+      alert("user must be logged in");
+      return;
+    }
+    const updatedCartList = cartItems[user.email].filter(item=>item.id!==productId);
+    const updatedUserCartList = { [user.email]: updatedCartList };
+    // update the state
+    setCartItems(updatedCartList);
+    // save the updated state to localStorage
+    updateLocalStorage(updatedUserCartList);
+  }
+  function getCartTotal(){
+    const total = cartItems[user.email]?.reduce((total, item)=>{
+      const product = getProductById(item.id);
+      total += product? product.price * item.quantity:0;
+      return total
+    },0)
+    console.log({total})
+    return total
+  }
+  function clearCart(){
+    // clear cart state
+    setCartItems({[user.email]:[]});
+    // update localStorage
+    updateLocalStorage({[user.email]:[]})
+  }
+  function placeOrder() {
+    alert("Successful Order!");
+    clearCart();
+  }
+  return <CartContext.Provider value={{ cartItems, addToCart, updateCartItemsState, updateQuantity, removeItem, getCartTotal, placeOrder }}>{children}</CartContext.Provider>;
 }
 
 function updateLocalStorage(updatedUserCartList) {
