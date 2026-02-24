@@ -34,19 +34,15 @@ export default function CartProvider({ children }) {
 
   function addToCart(productId) {
     // we need to get the current user from localStorage if there's none we tell the user to login
-    if (!user.email) {
+    if (!user?.email) {
       alert("user must be logged in");
       return;
     }
-
     // get the current cart state
     const currentUserCartItems = cartItems;
-    console.log({ currentUserCartItems });
 
     // check if product exists in the user's cartList
     const existing = currentUserCartItems[user.email]?.find((item) => item.id === productId);
-    console.log({ existing });
-
     // add item to cart
     let updatedCartItems;
     if (existing) {
@@ -55,30 +51,50 @@ export default function CartProvider({ children }) {
     } else {
       updatedCartItems = currentUserCartItems[user.email] ? [...currentUserCartItems[user.email], { id: productId, quantity: 1 }] : [{ id: productId, quantity: 1 }];
     }
-    console.log({ updatedCartItems });
-    const updatedUserCartList = { [user.email]: updatedCartItems };
     // update the state
+    const updatedUserCartList = { [user.email]: updatedCartItems };
     setCartItems(updatedUserCartList); // {userEmail:[{id:2, quantity:4},{...}] }
 
-    // save updated list to localStorage
-    // rn cartItem state is the current user items if we save it in localStorage it'll override other users
-    const savedCartList = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    console.log({ savedCartList });
-    // @todo update userItems in the localStorage then save
-    const [currentKey] = Object.keys(updatedUserCartList);
-    console.log({ currentKey });
-    const existingIndex = savedCartList.findIndex((currentList) => currentKey in currentList);
-    let updatedCartList;
-    if (existingIndex === -1) {
-      updatedCartList = [...savedCartList, { [user.email]: updatedCartItems }]; //this only works if the user list doesn't exist
-    } else {
-      updatedCartList = savedCartList.map((currentList, index) => (index === existingIndex ? { [user.email]: updatedCartItems } : currentList)); //this only works if the user list doesn't exist
-    }
-    console.log({ updatedCartList });
-    localStorage.setItem("cartItems", JSON.stringify(updatedCartList));
+    // update localStorage (DB)
+    updateLocalStorage(updatedUserCartList);
   }
 
-  return <CartContext.Provider value={{ cartItems, addToCart, updateCartItemsState }}>{children}</CartContext.Provider>;
+  // function for checkout item controls (+,-)
+  function updateQuantity(productId, type) {
+    console.log(`updating ${productId}-(${type})...`);
+    // user check
+    if (!user?.email) {
+      alert("user must be logged in");
+      return;
+    }
+    const valueOfType = type === "plus" ? 1 : -1;
+
+    // update the state
+    const updatedCart = cartItems[user.email].map((item) => (item.id === productId ? { id: item.id, quantity: item.quantity + valueOfType } : item));
+    const updatedUserCartList = { [user.email]: updatedCart };
+    setCartItems(updatedUserCartList);
+    // save the updated state to localStorage
+    updateLocalStorage(updatedUserCartList);
+  }
+  return <CartContext.Provider value={{ cartItems, addToCart, updateCartItemsState, updateQuantity }}>{children}</CartContext.Provider>;
+}
+
+function updateLocalStorage(updatedUserCartList) {
+  // save updated list to localStorage
+  const savedCartList = JSON.parse(localStorage.getItem("cartItems") || "[]");
+  // check if the user has a saved list in localStorage
+  const [currentKey] = Object.keys(updatedUserCartList); // key is the current user email
+  const existingIndex = savedCartList.findIndex((currentList) => currentKey in currentList);
+  let updatedCartList;
+  if (existingIndex === -1) {
+    // if the user has no cartList in the localStorage we add it
+    updatedCartList = [...savedCartList, updatedUserCartList]; //this only works if the user list doesn't exist
+  } else {
+    // if the user already has a list we update it
+    updatedCartList = savedCartList.map((currentList, index) => (index === existingIndex ? updatedUserCartList : currentList)); //this only works if the user list doesn't exist
+  }
+  // update localStorage
+  localStorage.setItem("cartItems", JSON.stringify(updatedCartList));
 }
 
 // custom auth hook

@@ -21,7 +21,7 @@ function Navbar() {
         {user?.email ? (
           <div className="navbar-auth">
             <div className="navbar-auth-links">
-              <div>Hello, {user?.email}</div>
+              <p>Hello, {user?.email}</p>
               <button className="btn btn-secondary" onClick={logout}>
                 Logout
               </button>
