@@ -73,7 +73,8 @@ export default function CartProvider({ children }) {
     const itemQuantity = currentItem.quantity;
     if (itemQuantity + valueOfType > 20) {
       return;
-    } else if (itemQuantity + valueOfType < 0) {
+    } else if (itemQuantity + valueOfType <= 0) {
+      removeItem(productId)
       return;
     }
     // update the state

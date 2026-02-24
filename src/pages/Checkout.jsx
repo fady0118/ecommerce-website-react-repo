@@ -81,11 +81,11 @@ function CheckoutPage() {
               <h2 className="checkout-section-title">Total</h2>
               <div className="checkout-total">
                 <p className="checkout-total-label">Subtotal</p>
-                <p className="checkout-total-value">${totalPrice?.toFixed(2)}</p>
+                <p className="checkout-total-value">${(totalPrice??0).toFixed(2)}</p>
               </div>
               <div className="checkout-total">
                 <p className="checkout-total-label">Total</p>
-                <p className="checkout-total-value checkout-total-final">${totalPrice?.toFixed(2)}</p>
+                <p className="checkout-total-value checkout-total-final">${(totalPrice??0).toFixed(2)}</p>
               </div>
               <button className="btn btn-primary btn-large btn-block" onClick={placeOrder}>
                 Place Order
