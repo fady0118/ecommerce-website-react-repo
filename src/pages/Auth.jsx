@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-
 function AuthPage() {
   const {authMode} = useParams()
   const [mode, setMode] = useState(authMode);
   const [error, setError] = useState(null);
-  const { signUp, login, logout, user } = useAuth();
+  const { signUp, login } = useAuth();
   const navigate = useNavigate();
   
   useEffect(()=>{
